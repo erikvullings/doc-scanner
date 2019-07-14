@@ -1,0 +1,50 @@
+{
+  "name": "doc-scanner-client",
+  "version": "0.0.1",
+  "description": "Scan one or more folders and show the (office/PDF) documents in your browser. Supports comments and tagging.",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf ./.cache",
+    "link": "npm link mithril-ui-form",
+    "start": "parcel index.html --out-dir ../server/public",
+    "old:build:domain": "npm run clean && parcel build index.html --out-dir ../server/public --public-url https://erikvullings.github.io/mithril-materialized",
+    "build:domain": "npm run clean && parcel build index.html --out-dir ../server/public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erikvullings/doc-scanner.git"
+  },
+  "keywords": [
+    "library",
+    "scanner",
+    "office",
+    "pdf",
+    "docs",
+    "webapp",
+    "spa",
+    "database"
+  ],
+  "author": "Erik Vullings <erik.vullings@gmail.com> (http://www.tno.nl)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/erikvullings/doc-scanner/issues"
+  },
+  "homepage": "https://github.com/erikvullings/doc-scanner#readme",
+  "dependencies": {
+    "mithril": "v2.0.0-rc.7",
+    "materialize-css": "^1.0.0",
+    "material-icons": "^0.3.1",
+    "mithril-ui-form": "^0.0.1",
+    "leaflet": "^1.5.1",
+    "leaflet-draw": "^1.0.4",
+    "slimdown-js": "0.1.4"
+  },
+  "devDependencies": {
+    "@types/mithril": "github:MithrilJS/mithril.d.ts#v2",
+    "autoprefixer": "^9.6.1",
+    "cssnano": "^4.1.10",
+    "parcel-bundler": "^1.12.3",
+    "rimraf": "^2.6.3",
+    "typescript": "^3.5.3"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "doc-scanner",
+  "version": "0.0.1",
+  "description": "Scan one or more folders and show the (office/PDF) documents in your browser. Supports comments and tagging.",
+  "main": "index.js",
+  "scripts": {
+    "clean": "pnpm run clean --filter doc-scanner-*",
+    "start": "pnpm run start --filter doc-scanner-*",
+    "link": "pnpm run link --filter doc-scanner-*",
+    "build:domain": "pnpm run build:domain --filter doc-scanner-*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erikvullings/doc-scanner.git"
+  },
+  "keywords": [
+    "library",
+    "scanner",
+    "office",
+    "pdf",
+    "docs",
+    "webapp",
+    "spa",
+    "database"
+  ],
+  "author": "Erik Vullings <erik.vullings@gmail.com> (http://www.tno.nl)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/erikvullings/doc-scanner/issues"
+  },
+  "homepage": "https://github.com/erikvullings/doc-scanner#readme",
+  "devDependencies": {
+    "pnpm": "^3.5.3"
+  }
+}
