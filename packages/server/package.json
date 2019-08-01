@@ -1,5 +1,5 @@
 {
-  "name": "doc-scanner-service",
+  "name": "local-documents-library-server",
   "private": true,
   "version": "0.0.1",
   "description": "Scan one or more folders and show the (office/PDF) documents in your browser. Supports comments and tagging.",
@@ -36,15 +36,23 @@
   "dependencies": {
     "command-line-args": "^5.1.1",
     "command-line-usage": "^6.0.2",
-    "rest-easy-loki": "^0.2.0",
-    "chokidar": "3.0.2"
+    "rest-easy-loki": "^0.3.0",
+    "koa-router": "^7.4.0",
+    "chokidar": "^3.0.2",
+    "object-hash": "^1.3.1",
+    "http-status": "1.3.2",
+    "mime-types": "2.1.24"
   },
   "devDependencies": {
     "tsc-watch": "^2.2.1",
+    "@types/koa": "^2.0.49",
+    "@types/mime-types": "2.1.0",
+    "@types/koa-router": "^7.0.42",
+    "@types/object-hash": "^1.2.0",
     "@types/command-line-args": "^5.0.0",
     "@types/command-line-usage": "^5.0.1",
-    "@types/chokidar": "^2.1.3",
-    "@types/node": "^12.6.2",
+    "@types/lokijs": "^1.5.2",
+    "@types/node": "^12.6.8",
     "rimraf": "^2.6.3",
     "typescript": "^3.5.3"
   }

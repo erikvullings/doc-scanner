@@ -1,3 +1,16 @@
+import { IDocument } from '../models';
+import { Renderer, parse } from 'marked';
+import file from '../assets/file_48px.png';
+import imageFile from '../assets/image_file_48px.png';
+import json from '../assets/json_48px.png';
+import xmlFile from '../assets/xml_file_48px.png';
+import csv from '../assets/csv_48px.png';
+import markdown from '../assets/markdown_48px.png';
+import pdf from '../assets/pdf_48px.png';
+import msWord from '../assets/ms_word_48px.png';
+import xls from '../assets/xls_48px.png';
+import msPowerpoint from '../assets/ms_powerpoint_48px.png';
+
 /**
  * Create a GUID
  * @see https://stackoverflow.com/a/2117523/319711
@@ -48,12 +61,7 @@ export const toLetters = (num: number): string => {
  * @param {number} [step=1]
  * @returns
  */
-export const range = (
-  from: number,
-  to: number,
-  count: number = to - from + 1,
-  step: number = 1
-) => {
+export const range = (from: number, to: number, count: number = to - from + 1, step: number = 1) => {
   // See here: http://stackoverflow.com/questions/3746725/create-a-javascript-array-containing-1-n
   // let a = Array.apply(null, {length: n}).map(Function.call, Math.random);
   const a: number[] = new Array(count);
@@ -106,12 +114,11 @@ export const deepCopy = <T>(target: T): T => {
  */
 export const titleAndDescriptionFilter = (filterValue: string) => {
   filterValue = filterValue.toLowerCase();
-  return (content: { title: string; description: string }) =>
+  return (content: IDocument) =>
     !filterValue ||
     !content.title ||
     content.title.toLowerCase().indexOf(filterValue) >= 0 ||
-    (content.description &&
-      content.description.toLowerCase().indexOf(filterValue) >= 0);
+    (content.description && content.description.toLowerCase().indexOf(filterValue) >= 0);
 };
 
 /**
@@ -126,15 +133,11 @@ export const unCamelCase = (str?: string) =>
         .replace(/^./, char => char.toUpperCase()) // uppercase the first character
     : '';
 
-export const deepEqual = <T extends { [key: string]: any }>(
-  x?: T,
-  y?: T
-): boolean => {
+export const deepEqual = <T extends { [key: string]: any }>(x?: T, y?: T): boolean => {
   const tx = typeof x;
   const ty = typeof y;
   return x && y && tx === 'object' && tx === ty
-    ? Object.keys(x).length === Object.keys(y).length &&
-        Object.keys(x).every(key => deepEqual(x[key], y[key]))
+    ? Object.keys(x).length === Object.keys(y).length && Object.keys(x).every(key => deepEqual(x[key], y[key]))
     : x === y;
 };
 
@@ -147,5 +150,65 @@ export const deepEqual = <T extends { [key: string]: any }>(
 /** Remove paragraphs <p> and </p> and the beginning and end of a string. */
 export const removeParagraphs = (s: string) => s.replace(/<\/?p>/g, '');
 
-export const removeHtml = (s: string) =>
-  s.replace(/<\/?[0-9a-zA-Z=\[\]_ \-"]+>/gm, '').replace(/&quot;/gi, '"');
+export const removeHtml = (s: string) => s.replace(/<\/?[0-9a-zA-Z=\[\]_ \-"]+>/gm, '').replace(/&quot;/gi, '"');
+
+export function debounce<F extends Function>(func: F, wait: number): F {
+  let timeoutID: number;
+  return <F>(<any>function(this: any, ...args: any[]) {
+    clearTimeout(timeoutID);
+    const context = this;
+
+    timeoutID = window.setTimeout(function() {
+      func.apply(context, args);
+    }, wait);
+  });
+}
+
+export const renderer = new Renderer({
+  gfm: true,
+  tables: true,
+  breaks: false,
+  pedantic: false,
+  sanitize: false,
+  smartLists: true,
+  smartypants: true,
+  headerIds: true,
+  headerPrefix: 'header-',
+});
+
+/** Convert markdown to HTML */
+export const md = (str: string) => parse(str, { renderer });
+
+/** Convert a file extension to an image source */
+export const extensionToImageSrc = (extension: string) => {
+  switch (extension.toLowerCase()) {
+    case '.png':
+    case '.jpg':
+    case '.gif':
+    case '.bmp':
+    case '.tif':
+      return imageFile;
+    case '.geojson':
+    case '.json':
+      return json;
+    case '.xml':
+      return xmlFile;
+    case '.csv':
+      return csv;
+    case '.md':
+      return markdown;
+    case '.pdf':
+      return pdf;
+    case '.doc':
+    case '.docx':
+      return msWord;
+    case '.xls':
+    case '.xlsx':
+      return xls;
+    case '.ppt':
+    case '.pptx':
+      return msPowerpoint;
+    default:
+      return file;
+  }
+};

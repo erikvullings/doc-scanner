@@ -5,10 +5,10 @@ import { AppState } from '../models/app-state';
 
 const log = console.log;
 const error = console.error;
-const withCredentials = false;
 
 // export class RestService<T extends IBaseModel> {
-export class RestService<T extends { id?: string | number }> {
+export class RestService<T extends { $loki?: string | number }> {
+  protected withCredentials = false;
   protected current: T = {} as T;
   protected list: T[] = [];
   protected baseUrl: string;
@@ -20,7 +20,7 @@ export class RestService<T extends { id?: string | number }> {
   }
 
   public getList() {
-    return this.list;
+    return this.list || [];
   }
 
   public getCurrent() {
@@ -28,7 +28,7 @@ export class RestService<T extends { id?: string | number }> {
   }
 
   public save(item: T, fd?: FormData) {
-    return item.id ? this.update(item, fd) : this.create(item, fd);
+    return item.$loki ? this.update(item, fd) : this.create(item, fd);
   }
 
   public async create(item: T, fd?: FormData) {
@@ -37,7 +37,7 @@ export class RestService<T extends { id?: string | number }> {
         method: 'POST',
         url: this.baseUrl,
         body: fd || item,
-        withCredentials,
+        withCredentials: this.withCredentials,
       });
       this.setCurrent(result);
       this.addItemToList(this.current);
@@ -50,12 +50,14 @@ export class RestService<T extends { id?: string | number }> {
   public async update(item: T, fd?: FormData) {
     try {
       console.debug('put');
-      await m.request({
-        method: 'PUT',
-        url: this.baseUrl + item.id,
-        body: fd || item,
-        withCredentials,
-      }).catch(e => console.error(e));
+      await m
+        .request({
+          method: 'PUT',
+          url: this.baseUrl + item.$loki,
+          body: fd || item,
+          withCredentials: this.withCredentials,
+        })
+        .catch(e => console.error(e));
       // this.setCurrent(data);
       this.current = item;
       this.updateItemInList(item);
@@ -65,12 +67,12 @@ export class RestService<T extends { id?: string | number }> {
     }
   }
 
-  public async delete(id = this.current.id) {
+  public async delete(id = this.current.$loki) {
     try {
       await m.request<T>({
         method: 'DELETE',
         url: this.baseUrl + id,
-        withCredentials,
+        withCredentials: this.withCredentials,
       });
       log(`Deleted with id: ${id}.`);
       this.removeItemFromList(id);
@@ -79,46 +81,18 @@ export class RestService<T extends { id?: string | number }> {
     }
   }
 
-  /*
-    There must be a generic file upload function: when uploading a file, it will allow you to set an alias (no spaces).
-    This alias can be used as a link, e.g. you could create an alias image1, and use it in a markdown file as follows:
-    ![My image]({{image1}}).
-   */
-
-  // public uploadFiles(
-  //   fl: FileList | undefined,
-  //   cb: (item: { filename: string; size: number; mimetype: string; data: Blob }) => void
-  // ) {
-  //   if (!fl || fl.length === 0) {
-  //     return;
-  //   }
-  //   log(`Uploading files...`);
-  //   // tslint:disable-next-line:prefer-for-of
-  //   for (let i = 0; i < fl.length; i++) {
-  //     const file = fl[i];
-  //     const reader = new FileReader();
-  //     reader.onload = () => {
-  //       const data = reader.result as ArrayBuffer;
-  //       const item = { filename: file.name, size: file.size, mimetype: file.type, data: new Blob([data]) };
-  //       cb(item);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // }
-
   public unload() {
     if (this.current) {
       this.new();
     }
   }
 
-  public async load(id?: string) {
-    const result = await m
-      .request<T>({
-        method: 'GET',
-        url: this.baseUrl + id,
-        withCredentials,
-      });
+  public async load(id?: string | number) {
+    const result = await m.request<T>({
+      method: 'GET',
+      url: this.baseUrl + id,
+      withCredentials: this.withCredentials,
+    });
     // log(result);
     this.setCurrent(result);
     this.updateItemInList(this.current);
@@ -126,28 +100,46 @@ export class RestService<T extends { id?: string | number }> {
   }
 
   public async loadList(): Promise<T[] | undefined> {
-    try {
-      const result = await m
-      .request<T[]>({
-        method: 'GET',
-        url: this.baseUrl,
-        withCredentials,
-      });
-      this.setList(result);
-      return this.list;
-    } catch {
-      this.baseUrl = this.createBaseUrl(true);
-      return this.loadList();
-    }
+    return m.request<T[]>({
+      method: 'GET',
+      url: this.baseUrl,
+      withCredentials: this.withCredentials,
+    }).then(result => {
+      if (result === null) {
+        return this.retryLoadList();
+      } else {
+        this.setList(result);
+        return this.list;
+      }
+    }).catch(reason => {
+      console.warn(reason);
+      return this.retryLoadList();
+    });
+    // try {
+    //   const result = await m.request<T[]>({
+    //     method: 'GET',
+    //     url: this.baseUrl,
+    //     withCredentials: this.withCredentials,
+    //   });
+    //   if (result === null) {
+    //     this.baseUrl = this.createBaseUrl(true);
+    //     return this.loadList();
+    //   } else {
+    //     this.setList(result);
+    //     return this.list;
+    //   }
+    // } catch (err) {
+    //   this.baseUrl = this.createBaseUrl(true);
+    //   return this.loadList();
+    // }
   }
 
   public async loadListInScenario(id: string) {
-    const result = await m
-      .request<T[]>({
-        method: 'GET',
-        url: this.baseUrl + `scenario/${id}`,
-        withCredentials,
-      });
+    const result = await m.request<T[]>({
+      method: 'GET',
+      url: this.baseUrl + `scenario/${id}`,
+      withCredentials: this.withCredentials,
+    });
     // log(JSON.stringify(result, null, 2));
     log('loadListInScenario...');
     this.setList(result);
@@ -159,12 +151,19 @@ export class RestService<T extends { id?: string | number }> {
     return this.current;
   }
 
+  private retryLoadList() {
+    const baseUrl = this.createBaseUrl(true);
+    if (this.baseUrl !== baseUrl) {
+      this.baseUrl = baseUrl;
+      return this.loadList();
+    }
+  }
   // protected async getAssets(id = this.current.id) {
   //   return m
   //     .request<IAsset[]>({
   //       method: 'GET',
   //       url: this.baseUrl + id + '/assets',
-  //       withCredentials,
+  //       withCredentials: this.withCredentials,
   //     })
   //     .then(result => {
   //       log(`Got assets.`);
@@ -189,11 +188,11 @@ export class RestService<T extends { id?: string | number }> {
   }
 
   private updateItemInList(item: T) {
-    this.setList(this.list.map(i => (i.id === item.id ? item : i)));
+    this.setList(this.list.map(i => (i.$loki === item.$loki ? item : i)));
   }
 
   private removeItemFromList(id?: string | number) {
-    this.setList([...this.list.filter(i => i.id !== id)]);
+    this.setList([...this.list.filter(i => i.$loki !== id)]);
   }
 
   // private createBaseUrl(): string {

@@ -13,11 +13,11 @@ const npmPackage = require('../package.json') as {
  */
 export interface FixedOptionDefinition extends OptionDefinition {
   description: string;
-  typeLabel: string;
 }
 
 export interface ICommandOptions {
   port: number;
+  watch: boolean;
   folder: string;
   help: boolean;
 }
@@ -28,23 +28,29 @@ export class CommandLineInterface {
       name: 'help',
       alias: 'h',
       type: Boolean,
-      typeLabel: '[underline]{Boolean}',
       description: 'Show help text'
+    },
+    {
+      name: 'watch',
+      alias: 'w',
+      type: Boolean,
+      defaultValue: false,
+      description: 'Watch the folders for changes'
     },
     {
       name: 'port',
       alias: 'p',
       type: Number,
       defaultValue: 8765,
-      typeLabel: '[underline]{Number}',
       description: 'Port address'
     },
     {
       name: 'folder',
       alias: 'f',
       type: String,
-      typeLabel: '[underline]{String}',
-      description: 'Comma separated list of data folders that contain the Office|PDF documents'
+      defaultOption: true,
+      defaultValue: `C:\\Users\\${process.env.USERNAME}\\Documents`,
+      description: 'Comma-separated list of data folders that contain the Office and PDF documents'
     },
   ];
 
@@ -65,12 +71,16 @@ export class CommandLineInterface {
       header: 'Examples',
       content: [
         {
-          desc: '01. Serve the data folder on port 8123',
+          desc: '01. Serve the data folder on port 8765',
           example: '$ doc-scanner "C:\\Users\\[USERNAME]\\Documents"'
         },
         {
-          desc: '02. Serve the data folder on port 80',
-          example: '$ doc-scanner "C:\\Users\\[USERNAME]\\Documents" -p 80'
+          desc: '02. Serve the data folder on port 80 (http://localhost)',
+          example: '$ doc-scanner -p 80 "C:\\Users\\[USERNAME]\\Documents"'
+        },
+        {
+          desc: '02. Serve the data folder and keep watching for changes',
+          example: '$ doc-scanner -w "C:\\Users\\[USERNAME]\\Documents"'
         }
       ]
     }

@@ -1,17 +1,17 @@
 {
-  "name": "doc-scanner",
+  "name": "local-documents-library",
   "version": "0.0.1",
   "description": "Scan one or more folders and show the (office/PDF) documents in your browser. Supports comments and tagging.",
   "main": "index.js",
   "scripts": {
-    "clean": "pnpm run clean --filter doc-scanner-*",
-    "start": "pnpm run start --filter doc-scanner-*",
-    "link": "pnpm run link --filter doc-scanner-*",
-    "build:domain": "pnpm run build:domain --filter doc-scanner-*"
+    "clean": "pnpm run clean --filter local-documents-library-*",
+    "start": "pnpm run start --filter local-documents-library-*",
+    "link": "pnpm run link --filter local-documents-library-*",
+    "build:domain": "pnpm run build:domain --filter local-documents-library-*"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/erikvullings/doc-scanner.git"
+    "url": "git+https://github.com/erikvullings/local-documents-library.git"
   },
   "keywords": [
     "library",
@@ -26,9 +26,9 @@
   "author": "Erik Vullings <erik.vullings@gmail.com> (http://www.tno.nl)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/erikvullings/doc-scanner/issues"
+    "url": "https://github.com/erikvullings/local-documents-library/issues"
   },
-  "homepage": "https://github.com/erikvullings/doc-scanner#readme",
+  "homepage": "https://github.com/erikvullings/local-documents-library#readme",
   "devDependencies": {
     "pnpm": "^3.5.3"
   }

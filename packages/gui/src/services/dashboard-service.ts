@@ -1,8 +1,8 @@
 import m, { ComponentTypes, RouteDefs } from 'mithril';
 import { AboutPage } from '../components/about/about-page';
-import { HomePage } from '../components/home/home-page';
 import { Layout } from '../components/layout';
 import { IDashboard } from '../models/dashboard';
+import { DocumentsList } from '../components/home/documents-list';
 
 export const enum Dashboards {
   HOME = 'HOME',
@@ -55,7 +55,7 @@ export const dashboardSvc: DashboardService = new DashboardService(Layout, [
     icon: 'home',
     route: '/home',
     visible: true,
-    component: HomePage,
+    component: DocumentsList,
   },
   {
     id: Dashboards.ABOUT,

@@ -1,73 +1,60 @@
 import m from 'mithril';
-import { Button, TextArea, TextInput, FileInput, ModalPanel } from 'mithril-materialized';
-import { TrialSvc, dashboardSvc } from '../../services';
-import { ITrial, deepCopy, deepEqual } from 'trial-manager-models';
-import { AppState } from '../../models';
+import { Button, TextArea, TextInput, ModalPanel, NumberInput } from 'mithril-materialized';
+import { DocumentsSvc } from '../../services';
+import { IDocument } from '../../models';
+import { deepCopy, deepEqual } from '../../utils';
 
 const log = console.log;
 const close = async (e?: UIEvent) => {
   log('closing...');
-  await TrialSvc.unload();
+  await DocumentsSvc.unload();
   m.route.set('/');
   if (e) {
     e.preventDefault();
   }
 };
 
-export const TrialForm = () => {
+export const DocumentForm = () => {
   const state = {
-    trial: {} as ITrial,
+    document: {} as IDocument,
   };
   const onsubmit = async (e: MouseEvent) => {
     log('submitting...');
     e.preventDefault();
-    if (state.trial) {
-      await TrialSvc.saveTrial(state.trial);
-      state.trial = deepCopy(TrialSvc.getCurrent());
+    if (state.document) {
+      await DocumentsSvc.save(state.document);
+      state.document = deepCopy(DocumentsSvc.getCurrent());
     }
-  };
-  const upload = (file: FileList) => {
-    if (!file || file.length < 1) {
-      return console.warn('File is undefined');
-    }
-    const body = new FormData();
-    body.append('file', file[0]);
-
-    m.request({
-      method: 'POST',
-      url: `${AppState.apiService()}/repo/upload`,
-      body,
-    }).then(() => setTimeout(() => m.route.set(dashboardSvc.defaultRoute), 500));
   };
 
   return {
     oninit: () => {
       log('On INIT');
       log(state);
-      const trial = TrialSvc.getCurrent();
-      state.trial = deepCopy(trial);
+      const document = DocumentsSvc.getCurrent();
+      state.document = deepCopy(document);
     },
     view: () => {
-      const { trial } = state;
-      const hasChanged = !deepEqual(trial, TrialSvc.getCurrent());
+      const { document } = state;
+      const hasChanged = !deepEqual(document, DocumentsSvc.getCurrent());
       return m('.row', [
         m('.col.s12', [
-          m('h5', trial.id ? 'Trial' : 'Create new Trial'),
+          m('h5', document.$loki ? 'Document' : 'Create new Document'),
           m(
             '.col.s6.l8',
             m(TextInput, {
               id: 'title',
-              initialValue: trial.title,
-              onchange: (v: string) => (trial.title = v),
+              initialValue: document.title,
+              onchange: (v: string) => (document.title = v),
               label: 'Title',
               iconName: 'title',
             })
           ),
           m(
             '.col.s6.l4',
-            m(TextInput, {
+            m(NumberInput, {
               id: 'id',
-              initialValue: trial.id,
+              initialValue: document.$loki,
               label: 'ID',
               iconName: 'label',
               disabled: true,
@@ -77,26 +64,12 @@ export const TrialForm = () => {
             '.col.s12',
             m(TextArea, {
               id: 'desc',
-              initialValue: trial.description,
-              onchange: (v: string) => (trial.description = v),
+              initialValue: document.description,
+              onchange: (v: string) => (document.description = v),
               label: 'Description',
               iconName: 'description',
             })
           ),
-          trial.id
-            ? undefined
-            : m(
-                '.row',
-                m('.col.s12', [
-                  m('h5', 'Upload an existing trial'),
-                  m(FileInput, {
-                    placeholder: 'Upload an existing Trial',
-                    accept: ['.sqlite3', '.sqlite'],
-                    style: 'margin-bottom: 20px',
-                    onchange: upload,
-                  }),
-                ])
-              ),
           m(
             '.row',
             m('.col.s12.buttons', [
@@ -104,7 +77,7 @@ export const TrialForm = () => {
                 label: 'Undo',
                 iconName: 'undo',
                 class: `green ${hasChanged ? '' : 'disabled'}`,
-                onclick: () => (state.trial = deepCopy(TrialSvc.getCurrent())),
+                onclick: () => (state.document = deepCopy(DocumentsSvc.getCurrent())),
               }),
               ' ',
               m(Button, {
@@ -121,7 +94,7 @@ export const TrialForm = () => {
               }),
               ' ',
               m(Button, {
-                modalId: 'delete-trial',
+                modalId: 'delete-document',
                 label: 'Delete',
                 iconName: 'delete',
                 class: 'red',
@@ -130,15 +103,15 @@ export const TrialForm = () => {
           ),
         ]),
         m(ModalPanel, {
-          id: 'delete-trial',
-          title: `Delete trial`,
-          description: `Do you really want to delete this Trial - there is no way back?`,
+          id: 'delete-document',
+          title: `Delete document`,
+          description: `Do you really want to delete this document - there is no way back?`,
           options: { opacity: 0.7 },
           buttons: [
             {
               label: 'Delete',
               onclick: async () => {
-                TrialSvc.delete(trial.id);
+                DocumentsSvc.delete(document.$loki);
                 close();
               },
             },
