@@ -33,7 +33,7 @@
   "dependencies": {
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
-    "marked": "^0.6.3",
+    "marked": "^0.7.0",
     "material-icons": "^0.3.1",
     "materialize-css": "^1.0.0",
     "mithril": "^2.0.3",
